@@ -1,0 +1,423 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕵️‍♂️ Agency Security Terminal</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --neon-green: #00ff41;
+            --dark-bg: #0a0b10;
+            --panel-bg: rgba(20, 25, 35, 0.9);
+            --terminal-blue: #00d4ff;
+            --alert-red: #ff3131;
+            --text-gray: #a0aabf;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--dark-bg);
+            background-image: 
+                linear-gradient(rgba(0, 255, 65, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 65, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: var(--neon-green);
+            overflow: hidden;
+        }
+
+        .game-container {
+            background: var(--panel-bg);
+            backdrop-filter: blur(15px);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 2px solid var(--neon-green);
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.2), inset 0 0 15px rgba(0, 255, 65, 0.1);
+            text-align: center;
+            width: 360px;
+            position: relative;
+        }
+
+        /* Timer Styling */
+        .timer-container {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            padding: 5px 10px;
+            border: 1px solid var(--terminal-blue);
+            display: inline-block;
+            border-radius: 5px;
+            color: var(--terminal-blue);
+        }
+
+        #countdown {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .header-section {
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            margin: 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        #status-message {
+            font-size: 0.85rem;
+            color: var(--terminal-blue);
+            height: 20px;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .code-display {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 2rem 0;
+        }
+
+        .digit-slot {
+            width: 50px;
+            height: 65px;
+            border: 2px solid var(--neon-green);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        .digit-slot.active {
+            box-shadow: 0 0 15px var(--neon-green);
+            background: rgba(0, 255, 65, 0.1);
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .key {
+            background: transparent;
+            border: 1px solid var(--neon-green);
+            padding: 15px;
+            font-size: 1.3rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            border-radius: 5px;
+            cursor: pointer;
+            color: var(--neon-green);
+            transition: all 0.1s ease;
+        }
+
+        .key:hover:not(:disabled) {
+            background: rgba(0, 255, 65, 0.1);
+        }
+
+        .key:active:not(:disabled) {
+            background: var(--neon-green);
+            color: var(--dark-bg);
+            transform: scale(0.95);
+        }
+
+        .key:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            border-color: var(--text-gray);
+            color: var(--text-gray);
+        }
+
+        .key.special {
+            color: var(--terminal-blue);
+            border-color: var(--terminal-blue);
+        }
+
+        #prize-screen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            border-radius: 18px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            border: 2px solid var(--neon-green);
+            animation: glitchIn 0.4s ease-out;
+        }
+
+        @keyframes glitchIn {
+            0% { transform: scale(0.8); opacity: 0; filter: hue-rotate(90deg); }
+            100% { transform: scale(1); opacity: 1; filter: hue-rotate(0deg); }
+        }
+
+        .prize-emoji {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .prize-text {
+            font-size: 1.2rem;
+            color: var(--neon-green);
+            margin-bottom: 2rem;
+            padding: 0 20px;
+            line-height: 1.5;
+        }
+
+        .reset-btn {
+            background: var(--neon-green);
+            color: var(--dark-bg);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container" id="main-card">
+        <!-- Timer Area -->
+        <div class="timer-container">
+            TIME UNTIL SIGNAL LOSS: <span id="countdown">30:00</span>
+        </div>
+
+        <div id="lock-screen">
+            <div class="header-section">
+                <h1>🛡️ Security Terminal</h1>
+                <div id="status-message">Awaiting Agent Input...</div>
+            </div>
+            
+            <div class="code-display">
+                <div class="digit-slot" id="slot-0"></div>
+                <div class="digit-slot" id="slot-1"></div>
+                <div class="digit-slot" id="slot-2"></div>
+                <div class="digit-slot" id="slot-3"></div>
+            </div>
+
+            <div class="keypad" id="keypad">
+                <button class="key" onclick="press(1)">1</button>
+                <button class="key" onclick="press(2)">2</button>
+                <button class="key" onclick="press(3)">3</button>
+                <button class="key" onclick="press(4)">4</button>
+                <button class="key" onclick="press(5)">5</button>
+                <button class="key" onclick="press(6)">6</button>
+                <button class="key" onclick="press(7)">7</button>
+                <button class="key" onclick="press(8)">8</button>
+                <button class="key" onclick="press(9)">9</button>
+                <button class="key special" onclick="clearCode()">CLR</button>
+                <button class="key" onclick="press(0)">0</button>
+                <button class="key special" onclick="deleteDigit()">DEL</button>
+            </div>
+        </div>
+
+        <div id="prize-screen">
+            <div class="prize-emoji" id="prize-emoji">📂</div>
+            <div class="prize-text">
+                <b>ACCESS GRANTED</b><br><br>
+                Top Secret File Decrypted:<br>
+                <span id="random-prize-text" style="color: white;">"Analyzing prize..."</span>
+            </div>
+            <button class="reset-btn" onclick="resetGame()">Reset System</button>
+        </div>
+    </div>
+
+    <script>
+        // PRIZE DATABASE
+        const prizeList = [
+            { text: "One giant chocolate bar!", emoji: "🍫" },
+            { text: "An epic high-five from a parent!", emoji: "🖐️" },
+            { text: "15 minutes of extra gaming time!", emoji: "🎮" },
+            { text: "A small treat from the kitchen!", emoji: "🍪" },
+            { text: "A 5-minute dance party!", emoji: "💃" },
+            { text: "Pick the movie for movie night!", emoji: "🎬" },
+            { text: "A magical gold star sticker!", emoji: "⭐" },
+            { text: "One free pass from cleaning the room!", emoji: "🧹" }
+        ];
+
+        const idleMessages = [
+            "Awaiting Agent Input...",
+            "System Online. Ready for code...",
+            "Authentication required, Agent.",
+            "Standing by for security key..."
+        ];
+
+        const typingMessages = [
+            "Analyzing sequence...",
+            "Decrypting data blocks...",
+            "Scanning biometric match...",
+            "Processing keyphrase...",
+            "Verifying credentials..."
+        ];
+
+        let currentInput = "";
+        let timeLeft = 30 * 60; // 30 minutes in seconds
+        const slots = [
+            document.getElementById('slot-0'),
+            document.getElementById('slot-1'),
+            document.getElementById('slot-2'),
+            document.getElementById('slot-3')
+        ];
+        const statusEl = document.getElementById('status-message');
+        const timerEl = document.getElementById('countdown');
+
+        function getRandom(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function updateMessage(pool) {
+            statusEl.innerText = getRandom(pool);
+        }
+
+        // COUNTDOWN TIMER LOGIC
+        function startTimer() {
+            const timerInterval = setInterval(() => {
+                timeLeft--;
+                
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                
+                // Format with leading zeros
+                timerEl.innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    lockdown();
+                }
+            }, 1000);
+        }
+
+        function lockdown() {
+            timerEl.innerText = "00:00";
+            timerEl.style.color = "var(--alert-red)";
+            statusEl.innerText = "🚨 SYSTEM LOCKDOWN: SIGNAL LOST";
+            statusEl.style.color = "var(--alert-red)";
+            
+            // Disable all buttons
+            const buttons = document.querySelectorAll('.key');
+            buttons.forEach(btn => btn.disabled = true);
+        }
+
+        function updateDisplay() {
+            slots.forEach((slot, index) => {
+                slot.innerText = currentInput[index] || "";
+                slot.classList.toggle('active', index === currentInput.length);
+            });
+        }
+
+        function press(num) {
+            if (currentInput.length < 4) {
+                currentInput += num;
+                updateDisplay();
+                updateMessage(typingMessages);
+
+                if (currentInput.length === 4) {
+                    setTimeout(unlockPrize, 600);
+                }
+            }
+        }
+
+        function deleteDigit() {
+            currentInput = currentInput.slice(0, -1);
+            updateDisplay();
+            updateMessage(idleMessages);
+        }
+
+        function clearCode() {
+            currentInput = "";
+            updateDisplay();
+            updateMessage(idleMessages);
+        }
+
+        function unlockPrize() {
+            // 1. Pick a random prize
+            const prize = getRandom(prizeList);
+            document.getElementById('random-prize-text').innerText = `"${prize.text}"`;
+            document.getElementById('prize-emoji').innerText = prize.emoji;
+
+            // 2. Launch Confetti
+            var duration = 3 * 1000;
+            var end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 3,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#00ff41', '#00d4ff', '#ffffff']
+                });
+                confetti({
+                    particleCount: 3,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#00ff41', '#00d4ff', '#ffffff']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+
+            document.getElementById('prize-screen').style.display = 'flex';
+        }
+
+        function resetGame() {
+            currentInput = "";
+            updateDisplay();
+            updateMessage(idleMessages);
+            document.getElementById('prize-screen').style.display = 'none';
+        }
+
+        // Initialize
+        updateDisplay();
+        startTimer();
+    </script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    
